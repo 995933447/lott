@@ -21,7 +21,7 @@ class LotteryTableSeeder extends Seeder
                 'limit_time' => 20,
                 'issue_num_day' => 40,
                 'is_official' => Lottery::IS_OFFICIAL_STATUS,
-                'started_at' => '09:05:00',
+                'started_at' => '09:00:00',
                 'ended_at' => '22:30:00',
                 'sort' => 0,
             ],

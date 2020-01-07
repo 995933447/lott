@@ -39,16 +39,23 @@ abstract class BetDataValidatorContract
             return ServeResult::make(["{$data['codes'][0]}:{$usableBetItems[$codes[0]][$codes[1]]}玩法不存在"]);
         }
         $betItemConfig = $usableBetItems[$codes[0]][$codes[1]];
-        if ((float) $betItemConfig['odds'] !== (float) $data['odds']) {
+        if (is_array($betItemConfig['odds'])) {
+            $odds = is_array($betItemConfig['odds'][$data['face']])? $betItemConfig['odds'][$data['face']][$codes[2]]: $betItemConfig['odds'][$data['face']];
+        } else {
+            $odds = $betItemConfig['odds'];
+        }
+        if ((float) $odds !== (float) $data['odds']) {
             return ServeResult::make(['网站赔率已更新,请刷新网站后重新投注']);
         }
-        if (bccomp($data['money'], $betItemConfig['money_limit'][0]) <= 0) {
-            return ServeResult::make(["投注金额必须大于{$betItemConfig['money_limit'][0]}"]);
+
+        list($minMoneyLimit, $maxMoneyLimit) =  $betItemConfig['money_limit'][$data['face']];
+        if (bccomp($data['money'], $minMoneyLimit) <= 0) {
+            return ServeResult::make(["投注金额必须大于{$minMoneyLimit}"]);
         }
-        if (bccomp($data['money'], $betItemConfig['money_limit'][1]) >= 0) {
-            return ServeResult::make(["投注金额必须小于{$betItemConfig['money_limit'][1]}"]);
+        if (bccomp($data['money'], $maxMoneyLimit) >= 0) {
+            return ServeResult::make(["投注金额必须小于{$maxMoneyLimit}"]);
         }
-        if (!in_array($data['face'], $betItemConfig['valid_face'])) {
+        if (!(int)in_array($data['face'], $betItemConfig['valid_face'])) {
             $face = $data['face'] == LotteryBetType::X_PLAY_FACE ? 'x': 'y';
             return ServeResult::make(["投注盘面{$face}正在维护"]);
         }
@@ -69,20 +76,25 @@ abstract class BetDataValidatorContract
 
         $betItemConfig = $usableBetItems[$codes[0]][$codes[1]];
 
-        $odds = is_array($betItemConfig['odds'])? $betItemConfig['odds'][$codes[2]]: $betItemConfig['odds'];
+        if (is_array($betItemConfig['odds'])) {
+            $odds = is_array($betItemConfig['odds'][$data['face']])? $betItemConfig['odds'][$data['face']][$codes[2]]: $betItemConfig['odds'][$data['face']];
+        } else {
+            $odds = $betItemConfig['odds'];
+        }
         if ((float) $odds !== (float) $data['odds']) {
             return ServeResult::make(['网站赔率已更新,请刷新网站后重新投注']);
         }
 
-        if (bccomp($data['money'], $betItemConfig['money_limit'][0]) <= 0) {
-            return ServeResult::make(["投注金额必须大于{$betItemConfig['money_limit'][0]}"]);
+        list($minMoneyLimit, $maxMoneyLimit) =  $betItemConfig['money_limit'][$data['face']];
+        if (bccomp($data['money'], $minMoneyLimit) <= 0) {
+            return ServeResult::make(["投注金额必须大于{$minMoneyLimit}"]);
         }
 
-        if (bccomp($data['money'], $betItemConfig['money_limit'][1]) >= 0) {
-            return ServeResult::make(["投注金额必须小于{$betItemConfig['money_limit'][1]}"]);
+        if (bccomp($data['money'], $maxMoneyLimit) >= 0) {
+            return ServeResult::make(["投注金额必须小于{$maxMoneyLimit}"]);
         }
 
-        if (!in_array($data['face'], $betItemConfig['valid_face'])) {
+        if (!(int)in_array($data['face'], $betItemConfig['valid_face'])) {
             $face = $data['face'] == LotteryBetType::X_PLAY_FACE ? 'x': 'y';
             return ServeResult::make(["投注盘面{$face}正在维护"]);
         }

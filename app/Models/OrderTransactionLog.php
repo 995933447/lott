@@ -14,7 +14,10 @@ class OrderTransactionLog extends Model
 
     const BET_ORDER_TYPE = 0;
     const REWARD_PRIZE_TYPE = 1;
-    const CANCEL_ORDER_TYPE = 2;
+    const CANCEL_ORDER_WITHOUT_REWARD_TYPE = 2;
+    const RECOUNT_ORDER_TO_SUB_BALANCE_TYPE = 3;
+    const RECOUNT_ORDER_TO_ADD_BALANCE_TYPE = 4;
+    const CANCEL_ORDER_ABOUT_REWARD_TYPE = 5;
 
     public function user()
     {

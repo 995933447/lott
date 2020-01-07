@@ -13,8 +13,9 @@ class LianYing implements RewardCounterContract
     {
         $betItemCodes = $betOrder->codes;
         $continuingWin = true;
+        var_dump($betItemCodes);
         foreach ($betItemCodes as $betItemCode) {
-            if (!$continuingWin = static::getRewardStatus($betOrder, $issue->reward_codes))
+            if (!$continuingWin = static::getRewardStatus($betItemCode, $issue->reward_codes))
                 break;
         }
 
@@ -37,13 +38,14 @@ class LianYing implements RewardCounterContract
     private static function getRewardStatus(string $betItemCode, array $rewardCodes): bool
     {
         list($betItem, $betCode, $betSubCode) = explode(':', $betItemCode, 3);
-        if ($betItem === '合值') {
+        if ($betCode === '合值') {
             $resultCode = array_sum($rewardCodes);
         } else {
-            $resultCode = $rewardCodes[array_search($betItem, ['平码一', '平码二', '平码三', '平码四', '特码'])];
+            $resultCode = $rewardCodes[array_search($betCode, ['平码一', '平码二', '平码三', '平码四', '特码'])];
         }
+
         $rewardResults = [];
-        switch ($betItem) {
+        switch ($betCode) {
             case '合值':
                 if ($resultCode === GuangXiKuaiLeShiFen::getInvalidSummationCode()) {
                     break;
@@ -58,6 +60,7 @@ class LianYing implements RewardCounterContract
                 $rewardResults[] = GuangXiKuaiLeShiFen::toDaXiao($resultCode);
                 $rewardResults[] = GuangXiKuaiLeShiFen::toDanShuang($resultCode);
         }
+
         return in_array($betSubCode, $rewardResults);
     }
 }

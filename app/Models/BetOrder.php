@@ -13,6 +13,9 @@ class BetOrder extends Model
     const LOTTERY_CODE_FIELD = 'lottery_code';
     const ISSUE_FIELD = 'issue';
     const LOTTERY_ID_FIELD = 'lottery_id';
+    const ORDER_NO_FIELD = 'order_no';
+    const REWARD_CODES_FIELD = 'reward_codes';
+    const CODES_FIELD = 'codes';
 
     const SUCCESS_STATUS = 0;
     const BILLING_STATUE = 1;

@@ -8,6 +8,7 @@ use App\Events\CancelOrder;
 use App\Events\CommitOrder;
 use App\Events\DrawIssue;
 use App\Events\ReadyFetchIssueInOpenCaiNet;
+use App\Events\ResettleOrder;
 use App\Listeners\BetOrderCollector;
 use App\Listeners\CancelOrderListener;
 use App\Listeners\DecrementBetsOfIssueListener;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Laravel\Lumen\Providers\EventServiceProvider as ServiceProvider;
 use App\Events\SettleOrder;
 use Illuminate\Support\Facades\Event;
+use App\Listeners\DecrementAwardsOfIssueListener;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -55,16 +57,22 @@ class EventServiceProvider extends ServiceProvider
             LastFetchInOpenCatNetMarker::class
         ],
         CommitOrder::class => [
+            BetOrderCollector::class,
             IncrementBetsOfIssueListener::class,
             OrderTransactionLogger::class
         ],
         CancelOrder::class => [
             DecrementBetsOfIssueListener::class,
+            DecrementAwardsOfIssueListener::class,
             OrderTransactionLogger::class
         ],
         SettleOrder::class => [
             BetOrderCollector::class,
-            OrderTransactionLogger::class
+            OrderTransactionLogger::class,
+        ],
+        ResettleOrder::class => [
+            BetOrderCollector::class,
+            OrderTransactionLogger::class,
         ],
         CancelIssue::class => [
             CancelOrderListener::class

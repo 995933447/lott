@@ -17,11 +17,11 @@ class Hezhi implements RewardCounterContract
 
         $rewardResult = null;
         switch ($betCode) {
-            case $rewardCodesSum === GuangXiKuaiLeShiFen::getInvalidSummationCode():
+            case $rewardCodesSum === (int)GuangXiKuaiLeShiFen::getInvalidSummationCode():
                 break;
             case '大':
             case '小':
-                $rewardResult = GuangXiKuaiLeShiFen::toDaXiao($rewardCodesSum);
+                $rewardResult = GuangXiKuaiLeShiFen::toHeZhiDaXiao($rewardCodesSum);
                 break;
             case '单':
             case '双':
@@ -37,14 +37,16 @@ class Hezhi implements RewardCounterContract
         }
 
         $countRewardResult = new CountRewardResult();
-
         if (!$rewardResult) {
             $countRewardResult->setRewardStatus(
-                $betOrder->play_face == LotteryBetType::X_PLAY_FACE?
-                    CountRewardResult::LOST_STATUS:
-                    CountRewardResult::NO_REWARD_NO_LOST_STATUS
+                in_array((int)$betOrder->play_face, [LotteryBetType::X_PLAY_FACE, LotteryBetType::Y_PLAY_FACE])?
+                    CountRewardResult::NO_REWARD_NO_LOST_STATUS:
+                    CountRewardResult::LOST_STATUS
             );
-            $countRewardResult->setWinMoney($betOrder->play_face == LotteryBetType::X_PLAY_FACE? bcmul(-1, $betOrder->bet_money): 0);
+            $countRewardResult->setWinMoney(
+                in_array((int)$betOrder->play_face, [LotteryBetType::X_PLAY_FACE, LotteryBetType::Y_PLAY_FACE])?
+                    0: bcmul(-1, $betOrder->bet_money)
+            );
         } else {
             $countRewardResult->setRewardStatus($betCode == $rewardResult? CountRewardResult::REWARD_STATUS: CountRewardResult::LOST_STATUS);
             $countRewardResult->setWinMoney(
@@ -54,11 +56,19 @@ class Hezhi implements RewardCounterContract
             );
         }
 
-        $countRewardResult->setRewardCodes($countRewardResult->rewardStatus == CountRewardResult::REWARD_STATUS? $betOrder->codes: []);
-        $countRewardResult->setRewardMoney(
-            $countRewardResult->rewardStatus == CountRewardResult::REWARD_STATUS?
-                bcadd(bcmul($betOrder->odds, $betOrder->bet_money), $betOrder->bet_money): 0
-        );
+        switch ($countRewardResult->rewardStatus) {
+            case CountRewardResult::NO_REWARD_NO_LOST_STATUS:
+                $countRewardResult->setRewardCodes(['和']);
+                $countRewardResult->setRewardMoney($betOrder->bet_money);
+                break;
+            case CountRewardResult::REWARD_STATUS:
+                $countRewardResult->setRewardCodes($betOrder->codes);
+                $countRewardResult->setRewardMoney(bcadd(bcmul($betOrder->odds, $betOrder->bet_money), $betOrder->bet_money));
+                break;
+            default:
+                $countRewardResult->setRewardCodes([]);
+                $countRewardResult->setRewardMoney(0);
+        }
 
         return $countRewardResult;
     }

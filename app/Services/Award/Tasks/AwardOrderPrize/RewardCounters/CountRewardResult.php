@@ -1,6 +1,8 @@
 <?php
 namespace App\Services\Award\Tasks\AwardOrderPrize\RewardCounters;
 
+use App\Utils\Formatters\ZeroPad;
+
 class CountRewardResult
 {
     const REWARD_STATUS = 1;
@@ -33,7 +35,7 @@ class CountRewardResult
 
     public function setRewardCodes(array $codes)
     {
-        $this->rewardCodes = $codes;
+        $this->rewardCodes = ZeroPad::normalize($codes);
     }
 
     public function setRewardMoney(string $money)

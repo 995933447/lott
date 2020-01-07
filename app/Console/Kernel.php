@@ -2,8 +2,7 @@
 
 namespace App\Console;
 
-use App\Console\Commands\Test2Command;
-use App\Console\Commands\TestCommand;
+use App\Console\Commands\ResetBetOrderCollectedFormat;
 use App\Console\Commands\UsableLotteriesIssuesGenerator;
 use App\Console\Commands\UsableLotteriesIssuesDrawer;
 use Illuminate\Console\Scheduling\Schedule;
@@ -18,7 +17,8 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         UsableLotteriesIssuesDrawer::class,
-        UsableLotteriesIssuesGenerator::class
+        UsableLotteriesIssuesGenerator::class,
+        ResetBetOrderCollectedFormat::class
     ];
 
     /**

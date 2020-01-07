@@ -50,7 +50,7 @@ abstract class OfficeLotteryIssueManagerContract implements IssueManagerContract
     {
         $year = Date::getYear($date);
         if (Date::isBetweenDate($date, sprintf('%d-10-01', $year), sprintf('%d-10-07', $year))) {
-            return static::SPRING_FESTIVAL;
+            return static::NATIONAL_DAY;
         }
 
         if (
@@ -59,7 +59,7 @@ abstract class OfficeLotteryIssueManagerContract implements IssueManagerContract
                 $springFestival = $this->getSpringFestival($year),
                 date('Y-m-d', strtotime('+6 day', strtotime($springFestival))))
         ) {
-            return static::NATIONAL_DAY;
+            return static::SPRING_FESTIVAL;
         }
 
         return null;

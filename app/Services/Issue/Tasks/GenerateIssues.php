@@ -1,5 +1,5 @@
 <?php
-namespace App\Services\Issue\Tasks\GenerateIssues;
+namespace App\Services\Issue\Tasks;
 
 use App\Models\Lottery;
 use App\Services\Issue\Tasks\IssueManagers\GuangXiKuaiLeShiFen;

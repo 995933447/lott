@@ -11,7 +11,8 @@ class BetOrderForRebate extends CasionByConnectionModel
     const GAME_NO_FIELD = 'game_no';
 
     const SETTLEMENT_STATUS = 1;
-    const NO_SETTLEMENT_STATUS = 1;
+    const NO_SETTLEMENT_STATUS = 0;
+    const CANCEL_STATUS = 2;
 
     public function setBetContentAttribute($value)
     {

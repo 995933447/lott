@@ -17,8 +17,8 @@ class GuangXiKuaiLeShiFen extends BetDataValidatorContract
 
     protected function runRelatedValidation(string $betType, array $data, array $usableBetItems): ServeResult
     {
-        $concret = 'validateFor' . ucfirst($betType) . 'BetType';
-        return $this->$concret($data, $usableBetItems);
+        $concrete = 'validateFor' . ucfirst($betType) . 'BetType';
+        return $this->$concrete($data, $usableBetItems);
     }
 
     protected function validateForHezhiBetType(array $data, array $usableBetItems): ServeResult
@@ -86,16 +86,19 @@ class GuangXiKuaiLeShiFen extends BetDataValidatorContract
             return ServeResult::make(["投注号码个数必须大于{$betItemConfig['number_limit'][0]}且小于{$betItemConfig['number_limit'][1]}"]);
         }
 
-        if ((float) $betItemConfig['odds'] !== (float) $data['odds']) {
+        $odds = is_array($betItemConfig['odds'])? $betItemConfig['odds'][$data['face']]: $betItemConfig['odds'];
+        if ((float) $odds !== (float) $data['odds']) {
             return ServeResult::make(['网站赔率已更新,请刷新网站后重新投注']);
         }
-        if (bccomp($data['money'], $betItemConfig['money_limit'][0]) <= 0) {
-            return ServeResult::make(["投注金额必须大于{$betItemConfig['money_limit'][0]}"]);
+
+        list($minMoneyLimit, $maxMoneyLimit) =  $betItemConfig['money_limit'][$data['face']];
+        if (bccomp($data['money'], $minMoneyLimit) <= 0) {
+            return ServeResult::make(["投注金额必须大于{$minMoneyLimit}"]);
         }
-        if (bccomp($data['money'], $betItemConfig['money_limit'][1]) >= 0) {
-            return ServeResult::make(["投注金额必须小于{$betItemConfig['money_limit'][1]}"]);
+        if (bccomp($data['money'], $maxMoneyLimit) >= 0) {
+            return ServeResult::make(["投注金额必须小于{$maxMoneyLimit}"]);
         }
-        if (!in_array($data['face'], $betItemConfig['valid_face'])) {
+        if (!in_array((int)$data['face'], $betItemConfig['valid_face'])) {
             $face = $data['face'] == LotteryBetType::X_PLAY_FACE ? 'x': 'y';
             return ServeResult::make(["投注盘面{$face}正在维护"]);
         }

@@ -8,7 +8,7 @@ class GuangXiKuaiLeShiFen extends DoubleFaceGameTransferContract
 {
    public static function toHeZhiDaXiao(string $code): string
    {
-       return Compare::between($code, 56, 59)? '大': '小';
+       return Compare::between($code, 56, 95)? '大': '小';
    }
 
    public static function toDaXiao(string $code): string

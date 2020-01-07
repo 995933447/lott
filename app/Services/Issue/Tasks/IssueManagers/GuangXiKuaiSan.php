@@ -17,6 +17,6 @@ class GuangXiKuaiSan extends OpenCaiNetFetcher
         $dateToTimestamp = strtotime($date);
         $year = date('Y', $dateToTimestamp);
         $subDate = date('md', $dateToTimestamp);
-        return sprintf("%d%d001", $year, $subDate);
+        return sprintf("%d%s001", $year, $subDate);
     }
 }

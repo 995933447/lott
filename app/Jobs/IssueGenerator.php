@@ -2,8 +2,7 @@
 namespace App\Jobs;
 
 use App\Models\Lottery;
-use App\Services\Issue\Tasks\GenerateIssues\GenerateIssues;
-use App\Services\Issue\Tasks\DrawIssues\DrawIssues;
+use App\Services\Issue\Tasks\GenerateIssues;
 use App\Services\ServiceDispatcher;
 use App\Utils\Log\Logger;
 use Illuminate\Support\Carbon;

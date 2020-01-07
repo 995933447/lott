@@ -14,8 +14,8 @@ class GuangXiKuaiSan extends BetDataValidatorContract
 
     protected function runRelatedValidation(string $betType, array $data, array $usableBetItems): ServeResult
     {
-        $concret = 'validateFor' . ucfirst($betType) . 'BetType';
-        return $this->$concret($data, $usableBetItems);
+        $concrete = 'validateFor' . ucfirst($betType) . 'BetType';
+        return $this->$concrete($data, $usableBetItems);
     }
 
     protected function validateForHezhiBetType(array $data, array $usableBetItems): ServeResult

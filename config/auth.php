@@ -36,6 +36,7 @@ return [
 
     'guards' => [
         'api' => ['driver' => 'api'],
+        'rpc' => ['driver' => 'rpc']
     ],
 
     /*

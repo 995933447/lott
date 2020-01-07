@@ -1,5 +1,5 @@
 <?php
-namespace App\Services\Rpc\Tasks;
+namespace App\Services\Rpc\Tasks\Clients;
 
 use App\Services\ServeResult;
 use App\Services\TaskServiceContract;
@@ -7,7 +7,6 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 

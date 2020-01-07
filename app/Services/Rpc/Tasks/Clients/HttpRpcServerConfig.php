@@ -1,5 +1,5 @@
 <?php
-namespace App\Services\Rpc\Tasks;
+namespace App\Services\Rpc\Tasks\Clients;
 
 class HttpRpcServerConfig
 {

@@ -36,22 +36,34 @@ class CancelOrder implements TaskServiceContract
                     Event::dispatch(EventServiceProvider::ROLLBACK_CANCEL_ORDER_TRANSACTION_EVENT);
                     return ServeResult::make(['游戏已封盘, 无法撤销订单']);
                 }
-            } else {
-                $this->betOrder = BetOrder::lockForUpdate()->where($this->betOrder->getPrimaryKey(), $this->betOrder->id)->first();
-                if ($this->betOrder->status == BetOrder::SETTLEMENT_STATUS) {
-                    Event::dispatch(EventServiceProvider::ROLLBACK_CANCEL_ORDER_TRANSACTION_EVENT);
-                    return ServeResult::make(['该笔订单已结算,无法操作取消订单']);
-                }
             }
 
-            $this->betOrder->status = BetOrder::CANCLE_STATUS;
-            $this->betOrder->save();
+            $this->betOrder = $this->betOrder->lockForUpdate()->where($this->betOrder->getPrimaryKey(), $this->betOrder->id)->first();
+            $originalBetOrderRewardedMoney = $this->betOrder->reward_money;
 
-            $userBalance = UserBalance::lockForUpdate()->where(UserBalance::USER_ID_FIELD, $this->betOrder->user_id)->first();
-            $userBalance->balance = bcadd($userBalance->balance, $this->betOrder->bet_money);
-            $userBalance->save();
+            if ($this->betOrder->status == BetOrder::CANCLE_STATUS) {
+                return ServeResult::make();
+            } else if ($this->betOrder->status == BetOrder::SETTLEMENT_STATUS) {
+                $userBalance = UserBalance::lockForUpdate()->where(UserBalance::USER_ID_FIELD, $this->betOrder->user_id)->first();
+                $userBalance->balance = bcadd(bcsub($userBalance->balance, $this->betOrder->reward_money), $this->betOrder->bet_money);
+                $userBalance->save();
 
-            Event::dispatch(new \App\Events\CancelOrder($this->betOrder));
+                $this->betOrder->reward_money = 0;
+                $this->betOrder->win = 0;
+                $this->betOrder->reward_codes = [];
+                $this->betOrder->reward_status = null;
+                $this->betOrder->status = BetOrder::CANCLE_STATUS;
+                $this->betOrder->save();
+            } else {
+                $this->betOrder->status = BetOrder::CANCLE_STATUS;
+                $this->betOrder->save();
+
+                $userBalance = UserBalance::lockForUpdate()->where(UserBalance::USER_ID_FIELD, $this->betOrder->user_id)->first();
+                $userBalance->balance = bcadd($userBalance->balance, $this->betOrder->bet_money);
+                $userBalance->save();
+            }
+
+            Event::dispatch(new \App\Events\CancelOrder($this->betOrder, $originalBetOrderRewardedMoney));
 
             Event::dispatch(EventServiceProvider::COMMIT_CANCEL_ORDER_TRANSACTION_EVENT);
         }catch (\Exception $e) {

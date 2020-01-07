@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use App\Repositories\UserRepository;
 use App\Services\Auth\Validators\Authorization;
 use App\Services\ServiceDispatcher;
 use App\Utils\Marker\MarkedKeysEnum;
 use App\Utils\Marker\MarkInstance;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -42,6 +44,10 @@ class AuthServiceProvider extends ServiceProvider
            MarkInstance::mark(MarkedKeysEnum::CURRENT_USER_IS_AGENT, $validateResult->getData()['is_agent']);
 
            return UserRepository::find($validateResult->getData()['uid'], $validateResult->getData()['is_agent']);
+        });
+
+        $this->app['auth']->viaRequest('rpc', function ($request) {
+            return User::find(Crypt::decrypt($request->input('rpc_identifier'))->id);
         });
     }
 }

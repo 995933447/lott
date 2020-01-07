@@ -6,9 +6,9 @@ use App\Models\BetOrder;
 
 abstract class TransactionOrderEventContract extends Event
 {
-    private $order;
+    protected $order;
 
-    private $orderStatus;
+    protected $orderStatus;
 
     public function __construct(BetOrder $betOrder)
     {

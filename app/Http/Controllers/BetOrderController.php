@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BetOrder;
 use App\Services\BetOrder\Tasks\CancelOrder;
+use App\Services\BetOrder\Tasks\RecountOrdersOfIssue;
 use App\Services\BetOrder\Validators\CommitOrder\CommitOrder;
 use App\Services\ServiceDispatcher;
 use App\Utils\Formatters\End;
@@ -40,7 +41,7 @@ class BetOrderController
 
     public function cancel($orderId)
     {
-        $cancelOrderResult = ServiceDispatcher::dispatch(
+        $result = ServiceDispatcher::dispatch(
             ServiceDispatcher::TASK_SERVICE,
             CancelOrder::class,
             ($betOrder = new BetOrder)->where(BetOrder::USER_ID_FIELD, Auth::id())
@@ -48,8 +49,17 @@ class BetOrderController
                 ->where(BetOrder::STATUS_FIELD, BetOrder::SUCCESS_STATUS)
                 ->first()
          );
-        if ($cancelOrderResult->hasErrors()) {
-            return End::toFailJson($cancelOrderResult->getErrors()->toArray(), $cancelOrderResult->getError(), End::INTERNAL_ERROR);
+        if ($result->hasErrors()) {
+            return End::toFailJson($result->getErrors()->toArray(), $result->getError(), End::INTERNAL_ERROR);
+        }
+        return End::toSuccessJson();
+    }
+
+    public function recountOrdersOfIssue($issueId)
+    {
+        $result = ServiceDispatcher::dispatch(ServiceDispatcher::TASK_SERVICE, new RecountOrdersOfIssue(Issue::find($issueId)));
+        if ($result->hasErrors()) {
+            return End::toFailJson($result->getErrors()->toArray(), $result->getError(), End::INTERNAL_ERROR);
         }
         return End::toSuccessJson();
     }

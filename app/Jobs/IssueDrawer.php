@@ -2,7 +2,7 @@
 namespace App\Jobs;
 
 use App\Models\Lottery;
-use App\Services\Issue\Tasks\DrawIssues\DrawIssues;
+use App\Services\Issue\Tasks\DrawIssues;
 use App\Services\ServiceDispatcher;
 use App\Utils\Log\Logger;
 

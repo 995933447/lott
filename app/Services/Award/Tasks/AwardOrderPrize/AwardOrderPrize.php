@@ -1,6 +1,7 @@
 <?php
 namespace App\Services\Award\Tasks\AwardOrderPrize;
 
+use App\Events\ResettleOrder;
 use App\Events\SettleOrder;
 use App\Models\BetOrder;
 use App\Models\BetType;
@@ -19,6 +20,10 @@ use App\Services\ServeResult;
 use App\Services\TaskServiceContract;
 use Illuminate\Support\Facades\Event;
 
+/** 派彩类
+ * Class ReAwardOrderPrize
+ * @package App\Services\Award\Tasks\AwardOrderPrize
+ */
 class AwardOrderPrize implements TaskServiceContract
 {
     private $issue;
@@ -61,44 +66,72 @@ class AwardOrderPrize implements TaskServiceContract
 
         Event::dispatch(EventServiceProvider::BEGIN_AWARD_ORDER_TRANSACTION_EVENT);
         try {
-            $betOrderStatus = $this->betOrder->lockForUpdate()->where($this->betOrder->getPrimaryKey(), $this->betOrder->id)->value(BetOrder::STATUS_FIELD);
-            if ($betOrderStatus != BetOrder::SUCCESS_STATUS) {
-                throw new AwardOrderPrizeException("订单状态不为下单成功且未结算状态");
+            $this->betOrder = $this->betOrder->lockForUpdate()->where($this->betOrder->getPrimaryKey(), $this->betOrder->id)->first();
+
+            if (!in_array((int)$this->betOrder->status, [BetOrder::SUCCESS_STATUS, BetOrder::SETTLEMENT_STATUS])) {
+                throw new AwardOrderPrizeException("有相关订单状态被其他进程取消,无法结算,请重试");
             }
-            $this->betOrder->status = BetOrder::BILLING_STATUE;
-            $this->betOrder->save();
 
             $countResult = $this->countReward();
 
-            $this->betOrder->win = $countResult->winMoney;
-            $this->betOrder->reward_codes = $countResult->rewardCodes;
-            $this->betOrder->reward_money = $countResult->rewardMoney;
             switch ($countResult->rewardStatus) {
-                case BetOrder::REWARD_STATUS:
-                    $this->betOrder->reward_status = BetOrder::REWARD_STATUS;
+                case CountRewardResult::REWARD_STATUS:
+                    $rewardStatus = BetOrder::REWARD_STATUS;
                     break;
-                case BetOrder::LOST_STATUS:
-                    $this->betOrder->reward_status = BetOrder::LOST_STATUS;
+                case CountRewardResult::LOST_STATUS:
+                    $rewardStatus = BetOrder::LOST_STATUS;
                     break;
                 default:
-                    $this->betOrder->reward_status = BetOrder::NO_REWARD_NO_LOST_STATUS;
-            }
-            $this->betOrder->valid_bet_money = $this->betOrder->bet_money;
-            $this->betOrder->status = BetOrder::SETTLEMENT_STATUS;
-            $this->betOrder->save();
-
-            $this->issue->total_reward_money = bcadd($this->issue->total_reward_money, $countResult->rewardMoney);
-            if ($countResult->rewardStatus === CountRewardResult::REWARD_STATUS) {
-                $this->issue->total_reward_num++;
+                    $rewardStatus = BetOrder::NO_REWARD_NO_LOST_STATUS;
             }
 
-            if ($countResult->winMoney > 0) {
-                $userBalance = UserBalance::lockForUpdate()->where(UserBalance::USER_ID_FIELD, $this->betOrder->user_id)->first();
-                $userBalance->balance = bcadd($userBalance->balance, $countResult->winMoney);
-                $userBalance->save();
-            }
+            $originalBetOrderStatus = $this->betOrder->status;
+            if (
+                $originalBetOrderStatus != BetOrder::SETTLEMENT_STATUS ||
+                $this->betOrder->reward_status != $rewardStatus ||
+                bccomp($this->betOrder->reward_money, $countResult->rewardMoney) !== 0 ||
+                $this->betOrder->reward_codes != $countResult->rewardCodes
+            ) {
+                if ($this->betOrder->status == BetOrder::SETTLEMENT_STATUS) {
+                    $userBalance = UserBalance::lockForUpdate()->where(UserBalance::USER_ID_FIELD, $this->betOrder->user_id)->first();
+                    $change = 0;
 
-            Event::dispatch(new SettleOrder($this->betOrder));
+                    if (bccomp($countResult->rewardMoney, $this->betOrder->reward_money) === 1) {
+                        $userBalance->balance = bcadd($userBalance->balance, $change = bcsub($countResult->rewardMoney, $this->betOrder->reward_money));
+
+                        $this->issue->total_reward_money = bcadd($change, $this->issue->total_reward_money);
+                        $this->issue->save();
+                    } else if (bccomp($countResult->rewardMoney, $this->betOrder->reward_money) === -1) {
+                        $userBalance->balance = bcsub($userBalance->balance, $change = bcsub($this->betOrder->reward_money, $countResult->rewardMoney));
+
+                        $this->issue->total_reward_money = bcsub($this->issue->total_reward_money, $change);
+                        if (bccomp($this->betOrder->reward_money, 0) <= 0) {
+                            $this->issue->total_reward_num -=1;
+                        }
+                        $this->issue->save();
+                    }
+
+                    Event::dispatch(new ResettleOrder($this->betOrder, $change, $change >= 0));
+                } else if ($countResult->rewardMoney > 0) {
+                    // 未结算订单处理
+                    $userBalance = UserBalance::lockForUpdate()->where(UserBalance::USER_ID_FIELD, $this->betOrder->user_id)->first();
+                    $userBalance->balance = bcadd($userBalance->balance, $countResult->rewardMoney);
+                    $userBalance->save();
+
+                    $this->issue->total_reward_money = bcadd($countResult->rewardMoney, $this->issue->total_reward_money);
+                    $this->issue->total_reward_num += 1;
+                    $this->issue->save();
+                }
+
+                $this->betOrder->reward_status = $rewardStatus;
+                $this->betOrder->win = $countResult->winMoney;
+                $this->betOrder->reward_codes = $countResult->rewardCodes;
+                $this->betOrder->reward_money = $countResult->rewardMoney;
+                $this->betOrder->valid_bet_money = $this->betOrder->bet_money;
+                $this->betOrder->status = BetOrder::SETTLEMENT_STATUS;
+                $this->betOrder->save();
+                Event::dispatch(new SettleOrder($this->betOrder));
+            }
 
             Event::dispatch(EventServiceProvider::COMMIT_AWARD_ORDER_TRANSACTION_EVENT);
         } catch (\Exception $e) {
@@ -116,8 +149,8 @@ class AwardOrderPrize implements TaskServiceContract
     private function countReward(): CountRewardResult
     {
         return call_user_func_array(
-           [$this->rewardCounters[$this->betOrder->lottery_code . '@' . $this->betOrder->bet_type_code], 'handle'],
-           [$this->issue, $this->betOrder]
+            [$this->rewardCounters[$this->betOrder->lottery_code . '@' . $this->betOrder->bet_type_code], 'handle'],
+            [$this->issue, $this->betOrder]
         );
     }
 }

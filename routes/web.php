@@ -16,12 +16,11 @@ use App\Repositories\IssueRepository;
 use App\Repositories\LotteryRepository;
 use App\Repositories\OrderTransactionLogRepository;
 use App\Services\Auth\Tasks\CreateCaptcha;
-use App\Services\Rpc\Tasks\HttpRpc;
+use App\Services\Rpc\Tasks\Clients\HttpRpc;
 use App\Utils\Formatters\End;
 use App\Services\ServiceDispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 $router->get('/', function () use ($router) {
     return $router->app->version();
