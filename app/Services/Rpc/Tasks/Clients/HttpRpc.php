@@ -1,14 +1,15 @@
 <?php
 namespace App\Services\Rpc\Tasks\Clients;
 
+use App\Services\Rpc\Tasks\Clients\HttpRpcServerConfig;
 use App\Services\ServeResult;
 use App\Services\TaskServiceContract;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use App\Utils\Encryptor\Encryptor;
 
 class HttpRpc implements TaskServiceContract
 {
@@ -31,29 +32,29 @@ class HttpRpc implements TaskServiceContract
     private function replaceUriParams(array $uriReplaces)
     {
         if ($uriReplaces)
-            foreach ($uriReplaces as $uriReplace)
-                $this->routeUrl = str_replace('$param', $uriReplace, $this->routeUrl);
+            foreach ($uriReplaces as $uriReplace) {
+                $pos = strpos($this->routeUrl, HttpRpcServerConfig::URI_PARAM_REPLACEMENT);
+                if ($pos === false) {
+                    break;
+                }
+                $this->routeUrl = substr_replace($this->routeUrl, $uriReplace, $pos, strlen(HttpRpcServerConfig::URI_PARAM_REPLACEMENT));
+            }
     }
 
     public function run(): ServeResult
     {
-        $rpcParams = array_merge($this->request->all(), ['rpc_identifier' =>  Crypt::encrypt(Auth::user())]);
-
-        try {
-            $response = (new Client())->request(
-                strtoupper($this->request->method()),
-                $this->routeUrl,
-                strtoupper($this->request->method()) == HttpRpcServerConfig::GET_REQUEST_METHOD?
-                    [
-                        'query' => $rpcParams
-                    ]:
-                    [
-                        'form_params' => $rpcParams,
-                    ]
-            );
-        } catch (\Exception $e) {
-            echo $e;
-        }
+        $rpcParams = array_merge($this->request->all(), ['rpc_identifier' =>  Encryptor::serializeToEncrypt(Auth::user())]);
+        $response = (new Client())->request(
+            strtoupper($this->request->method()),
+            $this->routeUrl,
+            strtoupper($this->request->method()) == HttpRpcServerConfig::GET_REQUEST_METHOD?
+                [
+                    'query' => $rpcParams
+                ]:
+                [
+                    'form_params' => $rpcParams,
+                ]
+        );
 
         return ServeResult::make([], $response->getBody()->getContents());
     }

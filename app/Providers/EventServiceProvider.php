@@ -17,6 +17,7 @@ use App\Listeners\LimitFetchInOpenCaiNetChecker;
 use App\Listeners\LastFetchInOpenCatNetMarker;
 use App\Listeners\OrderTransactionLogger;
 use App\Listeners\PrizeJudgment;
+use App\Listeners\ReportRiskMessage;
 use App\Models\Connections\ByBalanceConnectionModel;
 use App\Models\Connections\CasionByConnectionModel;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +25,7 @@ use Laravel\Lumen\Providers\EventServiceProvider as ServiceProvider;
 use App\Events\SettleOrder;
 use Illuminate\Support\Facades\Event;
 use App\Listeners\DecrementAwardsOfIssueListener;
+use App\Events\IllegallyRiskHappen;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -76,6 +78,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         CancelIssue::class => [
             CancelOrderListener::class
+        ],
+        IllegallyRiskHappen::class => [
+            ReportRiskMessage::class
         ]
     ];
 

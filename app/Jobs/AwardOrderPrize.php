@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Events\SettleOrder;
 use App\Models\BetOrder;
 use App\Models\Issue;
 use App\Services\ServiceDispatcher;
@@ -30,7 +29,7 @@ class AwardOrderPrize extends Job
         foreach ($orders as $order) {
             $awardResult = ServiceDispatcher::dispatch(
                 ServiceDispatcher::TASK_SERVICE,
-                new \App\Services\Award\Tasks\AwardOrderPrize\AwardOrderPrize($this->issue, $order)
+                new \App\Services\BetOrder\Tasks\AwardOrderPrize\AwardOrderPrize($this->issue, $order)
             );
 
             if ($awardResult->hasErrors()) {

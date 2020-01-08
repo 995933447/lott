@@ -88,7 +88,7 @@ class OrderTransactionLogger
 
     protected function logResettleOrder(ResettleOrder $event)
     {
-        if (bccomp($event->transactionMoney->change, 0) === 0) {
+        if (bccomp($event->transactionMoney, 0) === 0) {
             return;
         }
 

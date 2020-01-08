@@ -1,10 +1,10 @@
 <?php
-namespace App\Services\Award\Tasks\AwardOrderPrize\RewardCounters\KuaiLeShiFen\GuangXiKuaiLeShiFen;
+namespace App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters\KuaiLeShiFen\GuangXiKuaiLeShiFen;
 
 use App\Models\BetOrder;
 use App\Models\Issue;
-use App\Services\Award\Tasks\AwardOrderPrize\RewardCounters\CountRewardResult;
-use App\Services\Award\Tasks\AwardOrderPrize\RewardCounters\RewardCounterContract;
+use App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters\CountRewardResult;
+use App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters\RewardCounterContract;
 use App\Utils\Formatters\ZeroPad;
 
 class Xingyun implements RewardCounterContract

@@ -16,6 +16,7 @@ class BetOrder extends Model
     const ORDER_NO_FIELD = 'order_no';
     const REWARD_CODES_FIELD = 'reward_codes';
     const CODES_FIELD = 'codes';
+    const SAFE_IDENTIFIER_FIELD = 'safe_identifier';
 
     const SUCCESS_STATUS = 0;
     const BILLING_STATUE = 1;
@@ -25,6 +26,10 @@ class BetOrder extends Model
     const REWARD_STATUS = 1;
     const LOST_STATUS = 0;
     const NO_REWARD_NO_LOST_STATUS = 2;
+
+    protected $hidden = [
+        self::SAFE_IDENTIFIER_FIELD
+    ];
 
     public function getRewardCodesAttribute($value)
     {

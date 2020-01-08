@@ -1,5 +1,5 @@
 <?php
-namespace App\Services\Award\Tasks\AwardOrderPrize;
+namespace App\Services\BetOrder\Tasks\AwardOrderPrize;
 
 use App\Events\ResettleOrder;
 use App\Events\SettleOrder;
@@ -9,20 +9,20 @@ use App\Models\Issue;
 use App\Models\Lottery;
 use App\Models\UserBalance;
 use App\Providers\EventServiceProvider;
-use App\Services\Award\Tasks\AwardOrderPrize\RewardCounters\CountRewardResult;
-use App\Services\Award\Tasks\AwardOrderPrize\RewardCounters\KuaiLeShiFen\GuangXiKuaiLeShiFen\Buzhong;
-use App\Services\Award\Tasks\AwardOrderPrize\RewardCounters\KuaiLeShiFen\GuangXiKuaiLeShiFen\Fushi;
-use App\Services\Award\Tasks\AwardOrderPrize\RewardCounters\KuaiLeShiFen\GuangXiKuaiLeShiFen\Hezhi;
-use App\Services\Award\Tasks\AwardOrderPrize\RewardCounters\KuaiLeShiFen\GuangXiKuaiLeShiFen\LianYing;
-use App\Services\Award\Tasks\AwardOrderPrize\RewardCounters\KuaiLeShiFen\GuangXiKuaiLeShiFen\Normal;
-use App\Services\Award\Tasks\AwardOrderPrize\RewardCounters\KuaiLeShiFen\GuangXiKuaiLeShiFen\Xingyun;
+use App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters\CountRewardResult;
+use App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters\KuaiLeShiFen\GuangXiKuaiLeShiFen\Buzhong;
+use App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters\KuaiLeShiFen\GuangXiKuaiLeShiFen\Fushi;
+use App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters\KuaiLeShiFen\GuangXiKuaiLeShiFen\Hezhi;
+use App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters\KuaiLeShiFen\GuangXiKuaiLeShiFen\LianYing;
+use App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters\KuaiLeShiFen\GuangXiKuaiLeShiFen\Normal;
+use App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters\KuaiLeShiFen\GuangXiKuaiLeShiFen\Xingyun;
 use App\Services\ServeResult;
 use App\Services\TaskServiceContract;
 use Illuminate\Support\Facades\Event;
 
 /** 派彩类
  * Class ReAwardOrderPrize
- * @package App\Services\Award\Tasks\AwardOrderPrize
+ * @package App\Services\BetOrder\Tasks\AwardOrderPrize
  */
 class AwardOrderPrize implements TaskServiceContract
 {
@@ -37,8 +37,8 @@ class AwardOrderPrize implements TaskServiceContract
         Lottery::GUANGXIKUAILE10_TYPE_CODE . '@' . BetType::FUSHI_TYPE_CODE => Fushi::class,
         Lottery::GUANGXIKUAILE10_TYPE_CODE . '@' . BetType::LIANYING_TYPE_CODE => LianYing::class,
 
-        Lottery::GUANGXIKUAI3_TYPE_CODE . '@' . BetType::HEZHI_TYPE_CODE => \App\Services\Award\Tasks\AwardOrderPrize\RewardCounters\KuaiSan\GuangXiKuaiSan\Hezhi::class,
-        Lottery::GUANGXIKUAI3_TYPE_CODE . '@' . BetType::NORMAL_TYPE_CODE => \App\Services\Award\Tasks\AwardOrderPrize\RewardCounters\KuaiSan\GuangXiKuaiSan\Normal::class
+        Lottery::GUANGXIKUAI3_TYPE_CODE . '@' . BetType::HEZHI_TYPE_CODE => \App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters\KuaiSan\GuangXiKuaiSan\Hezhi::class,
+        Lottery::GUANGXIKUAI3_TYPE_CODE . '@' . BetType::NORMAL_TYPE_CODE => \App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters\KuaiSan\GuangXiKuaiSan\Normal::class
     ];
 
     public function __construct(Issue $issue, BetOrder $betOrder)
@@ -96,22 +96,24 @@ class AwardOrderPrize implements TaskServiceContract
                     $userBalance = UserBalance::lockForUpdate()->where(UserBalance::USER_ID_FIELD, $this->betOrder->user_id)->first();
                     $change = 0;
 
-                    if (bccomp($countResult->rewardMoney, $this->betOrder->reward_money) === 1) {
+                    if (($isAddSide = bccomp($countResult->rewardMoney, $this->betOrder->reward_money)) === 1) {
                         $userBalance->balance = bcadd($userBalance->balance, $change = bcsub($countResult->rewardMoney, $this->betOrder->reward_money));
 
                         $this->issue->total_reward_money = bcadd($change, $this->issue->total_reward_money);
-                        $this->issue->save();
                     } else if (bccomp($countResult->rewardMoney, $this->betOrder->reward_money) === -1) {
                         $userBalance->balance = bcsub($userBalance->balance, $change = bcsub($this->betOrder->reward_money, $countResult->rewardMoney));
 
                         $this->issue->total_reward_money = bcsub($this->issue->total_reward_money, $change);
                         if (bccomp($this->betOrder->reward_money, 0) <= 0) {
                             $this->issue->total_reward_num -=1;
+                            $this->issue->total_reward_num -=1;
                         }
-                        $this->issue->save();
                     }
 
-                    Event::dispatch(new ResettleOrder($this->betOrder, $change, $change >= 0));
+                    $userBalance->save();
+                    $this->issue->save();
+
+                    Event::dispatch(new ResettleOrder($this->betOrder, $change, $isAddSide > 0));
                 } else if ($countResult->rewardMoney > 0) {
                     // 未结算订单处理
                     $userBalance = UserBalance::lockForUpdate()->where(UserBalance::USER_ID_FIELD, $this->betOrder->user_id)->first();
@@ -130,7 +132,10 @@ class AwardOrderPrize implements TaskServiceContract
                 $this->betOrder->valid_bet_money = $this->betOrder->bet_money;
                 $this->betOrder->status = BetOrder::SETTLEMENT_STATUS;
                 $this->betOrder->save();
-                Event::dispatch(new SettleOrder($this->betOrder));
+
+                if ($originalBetOrderStatus != BetOrder::SETTLEMENT_STATUS) {
+                    Event::dispatch(new SettleOrder($this->betOrder));
+                }
             }
 
             Event::dispatch(EventServiceProvider::COMMIT_AWARD_ORDER_TRANSACTION_EVENT);

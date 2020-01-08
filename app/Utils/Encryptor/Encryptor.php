@@ -1,6 +1,7 @@
 <?php
 namespace App\Utils\Encryptor;
 
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 
 class Encryptor
@@ -23,5 +24,15 @@ class Encryptor
     public static function decodeJwtToken(?string $key, string $token)
     {
         return Jwt::decodeToken($key, $token);
+    }
+
+    public static function serializeToEncrypt($value)
+    {
+        return Crypt::encrypt($value);
+    }
+
+    public static function unserializeToDecrypt($valueHash)
+    {
+        return Crypt::decrypt($valueHash);
     }
 }

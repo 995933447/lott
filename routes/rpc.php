@@ -9,11 +9,11 @@ $router->group(['domain' => 'lottery.rpc.net'], function ($router) {
         return 'This is lottery.rpc.net';
     });
 
-    $router->delete('/cancel-issue/{issueId:[0-9]+}', 'IssueController@cancelIssue');
+    $router->post('/cancel-issue/{issueId:[0-9]+}', 'IssueController@cancelIssue');
 
-    $router->put('/recount-orders/issue/{issue:[0-9]+}', 'BetOrderController@recountOrdersOfIssue');
+    $router->post('/recount-orders/issue/{issue:[0-9]+}', 'BetOrderController@recountOrdersOfIssue');
 
-    $router->put('/issue', 'IssueController@resetIssue');
+    $router->post('/issue', 'IssueController@resetIssue');
 
     $router->get('/lotteries', function (Request $request) {
         return End::toSuccessJson(LotteryRepository::get($request->input('ids')?? []));

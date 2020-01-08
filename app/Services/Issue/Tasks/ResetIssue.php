@@ -4,6 +4,7 @@ namespace App\Services\Issue\Tasks;
 use App\Models\Issue;
 use App\Services\ServeResult;
 use App\Services\TaskServiceContract;
+use App\Utils\Formatters\ZeroPad;
 
 class ResetIssue implements TaskServiceContract
 {
@@ -15,11 +16,11 @@ class ResetIssue implements TaskServiceContract
 
     private $status;
 
-    public function __construct(Issue $issue, array $rewardCodes = null, string $issueNumber = null, int $status = null)
+    public function __construct(Issue $issue, ?array $rewardCodes = null, ?string $issueNumber = null, ?int $status = null)
     {
         $this->issue = $issue;
-        $this->issueNumber = $issueNumber?: null;
-        $this->rewardCodes = $rewardCodes?: null;
+        $this->issueNumber = $issueNumber;
+        $this->rewardCodes = $rewardCodes;
         $this->status = $status;
     }
 
@@ -36,12 +37,19 @@ class ResetIssue implements TaskServiceContract
         if (!is_null($this->issueNumber)) {
             $this->issue->issue = $this->issueNumber;
         }
-        if (!is_null($this->rewardCodes)) {
-            $this->issue->reward_codes = $this->rewardCodes;
-        }
+
         if (!is_null($this->status)) {
             $this->issue->status = $this->status;
         }
+
+        if (!is_null($this->rewardCodes)) {
+            $this->issue->reward_codes = $this->rewardCodes;
+
+            if (!empty($this->rewardCodes)) {
+                $this->issue->status = Issue::OPENED_STATUS;
+            }
+        }
+
         $this->issue->save();
 
         return ServeResult::make();

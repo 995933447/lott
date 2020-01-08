@@ -1,13 +1,11 @@
 <?php
-namespace App\Services\Award\Tasks\AwardOrderPrize\RewardCounters\KuaiSan\GuangXiKuaiSan;
+namespace App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters\KuaiSan\GuangXiKuaiSan;
 
 use App\Models\BetOrder;
 use App\Models\Issue;
-use App\Models\LotteryBetType;
-use App\Services\Award\Tasks\AwardOrderPrize\RewardCounters\CountRewardResult;
-use App\Services\Award\Tasks\AwardOrderPrize\RewardCounters\RewardCounterContract;
+use App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters\CountRewardResult;
+use App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters\RewardCounterContract;
 use App\Utils\Games\CodeToTransfers\KuaiSan\GuangXiKuaiSan;
-use App\Utils\Math\Compare;
 
 class Hezhi implements RewardCounterContract
 {

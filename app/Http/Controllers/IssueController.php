@@ -16,6 +16,7 @@ class IssueController
             ServiceDispatcher::TASK_SERVICE,
             new ResetIssue(
                 Issue::find($request->input('issue_id')),
+                $request->input('reward_codes'),
                 $request->input('issue'),
                 $request->input('status')
             )

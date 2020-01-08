@@ -1,22 +1,22 @@
 <?php
-namespace App\Services\Award\Tasks\AwardOrderPrize\RewardCounters\KuaiLeShiFen\GuangXiKuaiLeShiFen;
+namespace App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters\KuaiLeShiFen\GuangXiKuaiLeShiFen;
 
 use App\Models\BetOrder;
 use App\Models\Issue;
-use App\Services\Award\Tasks\AwardOrderPrize\RewardCounters\CountRewardResult;
-use App\Services\Award\Tasks\AwardOrderPrize\RewardCounters\RewardCounterContract;
+use App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters\CountRewardResult;
+use App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters\RewardCounterContract;
 use App\Utils\Formatters\ZeroPad;
 
-class Buzhong implements RewardCounterContract
+class Fushi implements RewardCounterContract
 {
     public static function handle(Issue $issue, BetOrder $betOrder): CountRewardResult
     {
-        list($betItem, $betCode, $subBetCode) = explode(':', $betOrder->codes[0], 3);
-        $subBetCodes = ZeroPad::normalize(explode(',', $subBetCode));
+        list($betItem, $betCode, $subBetCodes) = explode(':', $betOrder->codes[0], 3);
+        $subBetCodes = ZeroPad::normalize(explode(',', $subBetCodes));
 
         $countRewardResult = new CountRewardResult();
         $countRewardResult->setRewardStatus(
-                array_diff($subBetCodes, ZeroPad::normalize($issue->reward_codes)) === $subBetCodes?
+            empty(array_diff($subBetCodes, ZeroPad::normalize($issue->reward_codes)))?
                 CountRewardResult::REWARD_STATUS:
                 CountRewardResult::LOST_STATUS
         );
@@ -28,8 +28,7 @@ class Buzhong implements RewardCounterContract
         $countRewardResult->setRewardCodes($countRewardResult->rewardStatus == CountRewardResult::REWARD_STATUS? $betOrder->codes: []);
         $countRewardResult->setRewardMoney(
             $countRewardResult->rewardStatus == CountRewardResult::REWARD_STATUS?
-                bcadd(bcmul($betOrder->odds, $betOrder->bet_money), $betOrder->bet_money):
-                0
+                bcadd(bcmul($betOrder->odds, $betOrder->bet_money), $betOrder->bet_money): 0
         );
 
         return $countRewardResult;

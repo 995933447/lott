@@ -27,7 +27,6 @@ $router->get('/', function () use ($router) {
 });
 
 $router->get('/test', function () {
-//    echo Hash::make('abc123456');
 });
 
 /**
@@ -331,10 +330,10 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
         );
     });
 
-    // rpc远程调用
-    $router->group(['prefix' => 'http-rpc'], function () use($router) {
+    // rpc远程调用类型接口
+    $router->group(['prefix' => 'http-rpc'], function () use ($router) {
         // rpc调用服务
-        $httpRpcHandler = function (Request $request) {
+        $defaultHttpRpcHandler = function (Request $request) {
             $argv = func_get_args();
             array_shift($argv);
 
@@ -345,28 +344,28 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
         };
 
         // 账号信息
-        $router->post('bind-basic-info', $httpRpcHandler);  // 实名认证
-        $router->post('bind-pay-password', $httpRpcHandler);  // 绑定资金密码
-        $router->post('change-pay-password', $httpRpcHandler);  // 修改资金密码
+        $router->post('bind-basic-info', $defaultHttpRpcHandler);  // 实名认证
+        $router->post('bind-pay-password', $defaultHttpRpcHandler);  // 绑定资金密码
+        $router->post('change-pay-password', $defaultHttpRpcHandler);  // 修改资金密码
 
         // 资金管理 - 提现
-        $router->get('bank-list', $httpRpcHandler); // 会员银行账号列表
-        $router->post('add-bank', $httpRpcHandler); // 添加会员银行账号
-        $router->post('wap-add-bank', $httpRpcHandler); // 添加会员银行账号(手机端用)
-        $router->post('check-money-password', $httpRpcHandler); // 验证资金密码
-        $router->post('delete-bank', $httpRpcHandler); // 删除会员银行账号
-        $router->post('set-default-bank', $httpRpcHandler); // 设置会员默认银行账号
-        $router->post('withdraw', $httpRpcHandler);   // 申请提款
+        $router->get('bank-list', $defaultHttpRpcHandler); // 会员银行账号列表
+        $router->post('add-bank', $defaultHttpRpcHandler); // 添加会员银行账号
+        $router->post('wap-add-bank', $defaultHttpRpcHandler); // 添加会员银行账号(手机端用)
+        $router->post('check-money-password', $defaultHttpRpcHandler); // 验证资金密码
+        $router->post('delete-bank', $defaultHttpRpcHandler); // 删除会员银行账号
+        $router->post('set-default-bank', $defaultHttpRpcHandler); // 设置会员默认银行账号
+        $router->post('withdraw', $defaultHttpRpcHandler);   // 申请提款
 
         // 资金管理 - 充值
-        $router->get('payment-list', $httpRpcHandler);   // 获取可用的在线支付列表
-        $router->get('transfer-list', $httpRpcHandler); // 获取可用的转账汇款列表
-        $router->post('transfer-order', $httpRpcHandler); // 转账汇款提交下单
+        $router->get('payment-list', $defaultHttpRpcHandler);   // 获取可用的在线支付列表
+        $router->get('transfer-list', $defaultHttpRpcHandler); // 获取可用的转账汇款列表
+        $router->post('transfer-order', $defaultHttpRpcHandler); // 转账汇款提交下单
 
-        $router->get('bank-select-list', $httpRpcHandler);
+        $router->get('bank-select-list', $defaultHttpRpcHandler);
 
-        $router->post('login', $httpRpcHandler);
-        $router->get('balance-log', $httpRpcHandler);
+        $router->post('login', $defaultHttpRpcHandler);
+        $router->get('balance-log', $defaultHttpRpcHandler);
     });
 });
 

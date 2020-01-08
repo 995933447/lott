@@ -1,5 +1,5 @@
 <?php
-namespace App\Services\Award\Tasks\AwardOrderPrize\RewardCounters;
+namespace App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters;
 
 use App\Utils\Formatters\ZeroPad;
 

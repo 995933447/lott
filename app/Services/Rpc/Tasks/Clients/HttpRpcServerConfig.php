@@ -9,6 +9,8 @@ class HttpRpcServerConfig
     const PUT_REQUEST_METHOD ='PUT';
     const OPTIONS_REQUEST_METHOD = 'OPTIONS';
 
+    const URI_PARAM_REPLACEMENT = '$param';
+
     public static $routes = [
         'http-rpc/bind-basic-info' => [
             self::POST_REQUEST_METHOD => 'http://boya.rpc.com/index.php/bind-basic-info',
@@ -57,6 +59,9 @@ class HttpRpcServerConfig
         ],
         'http-rpc/balance-log' => [
             self::GET_REQUEST_METHOD => 'http://boya.rpc.com/index.php/balance-log'
+        ],
+        'http-rpc/backend/push-risk-message' => [
+            self::POST_REQUEST_METHOD => 'http://boya.rpc.com/index.php/backend/push-risk-message'
         ]
     ];
 }

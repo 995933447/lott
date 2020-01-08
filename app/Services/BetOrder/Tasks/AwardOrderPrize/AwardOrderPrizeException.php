@@ -1,5 +1,5 @@
 <?php
-namespace App\Services\Award\Tasks\AwardOrderPrize;
+namespace App\Services\BetOrder\Tasks\AwardOrderPrize;
 
 class AwardOrderPrizeException extends \Exception
 {

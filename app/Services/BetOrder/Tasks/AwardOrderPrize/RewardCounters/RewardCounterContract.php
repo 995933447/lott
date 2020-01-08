@@ -1,9 +1,8 @@
 <?php
-namespace App\Services\Award\Tasks\AwardOrderPrize\RewardCounters;
+namespace App\Services\BetOrder\Tasks\AwardOrderPrize\RewardCounters;
 
 use App\Models\BetOrder;
 use App\Models\Issue;
-use App\Services\ServeResult;
 
 interface RewardCounterContract
 {

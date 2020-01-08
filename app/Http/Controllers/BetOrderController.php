@@ -10,6 +10,7 @@ use App\Utils\Formatters\End;
 use App\Utils\Formatters\Money;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Issue;
 
 class BetOrderController
 {

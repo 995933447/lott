@@ -3,7 +3,7 @@ namespace App\Services\BetOrder\Tasks;
 
 use App\Models\BetOrder;
 use App\Models\Issue;
-use App\Services\Award\Tasks\AwardOrderPrize\AwardOrderPrize;
+use App\Services\BetOrder\Tasks\AwardOrderPrize\AwardOrderPrize;
 use App\Services\ServeResult;
 use App\Services\ServiceDispatcher;
 use App\Services\TaskServiceContract;
