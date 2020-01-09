@@ -27,6 +27,7 @@ class IssueGenerator extends Job
             ServiceDispatcher::TASK_SERVICE,
             new GenerateIssues($this->lottery)
         );
+
         if ($setIssueResult->hasErrors()) {
             Logger::emergency($setIssueResult->getError());
             echo "error:" . $setIssueResult->getError();

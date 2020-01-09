@@ -33,6 +33,7 @@ class BetOrderController
                 (float) $request->input('odds')
             )
         );
+
         if ($commitOrderResult->hasErrors()) {
             return End::toFailJson([], $commitOrderResult->getError(), End::INTERNAL_ERROR);
         }
@@ -50,18 +51,22 @@ class BetOrderController
                 ->where(BetOrder::STATUS_FIELD, BetOrder::SUCCESS_STATUS)
                 ->first()
          );
+
         if ($result->hasErrors()) {
             return End::toFailJson($result->getErrors()->toArray(), $result->getError(), End::INTERNAL_ERROR);
         }
+
         return End::toSuccessJson();
     }
 
     public function recountOrdersOfIssue($issueId)
     {
         $result = ServiceDispatcher::dispatch(ServiceDispatcher::TASK_SERVICE, new RecountOrdersOfIssue(Issue::find($issueId)));
+
         if ($result->hasErrors()) {
             return End::toFailJson($result->getErrors()->toArray(), $result->getError(), End::INTERNAL_ERROR);
         }
+
         return End::toSuccessJson();
     }
 }

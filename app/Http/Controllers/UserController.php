@@ -12,9 +12,11 @@ class UserController
     public function getUserInfo()
     {
         $getUserInfoResult = ServiceDispatcher::dispatch(ServiceDispatcher::TASK_SERVICE, GetUserInfo::class);
+
         if ($getUserInfoResult->hasErrors()) {
             return End::toFailJson($getUserInfoResult->getErrors()->toArray(), $getUserInfoResult->getError(), End::INTERNAL_ERROR);
         }
+
         return End::toSuccessJson($getUserInfoResult->getData());
     }
 }

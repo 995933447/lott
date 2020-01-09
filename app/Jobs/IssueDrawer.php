@@ -28,6 +28,7 @@ class IssueDrawer extends Job
     public function handle()
     {
         $setIssueResult = ServiceDispatcher::dispatch(ServiceDispatcher::TASK_SERVICE, new DrawIssues($this->lottery, $this->drawDatetime));
+
         if ($setIssueResult->hasErrors()) {
             Logger::emergency($setIssueResult->getError());
             echo "error:" . $setIssueResult->getError();

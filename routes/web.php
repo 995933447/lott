@@ -27,6 +27,7 @@ $router->get('/', function () use ($router) {
 });
 
 $router->get('/test', function () {
+    return 'This is default server';
 });
 
 /**

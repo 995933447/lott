@@ -13,6 +13,7 @@ class BetOrderObserver
     public function saving(BetOrder $order)
     {
         $encryptResult = ServiceDispatcher::dispatch(ServiceDispatcher::TASK_SERVICE, new EncryptOrder($order, EncryptOrder::VERSION_1));
+
         if ($encryptResult->hasErrors()) {
             throw new \Exception($encryptResult->getError());
         }
@@ -21,6 +22,7 @@ class BetOrderObserver
     public function retrieved(BetOrder $order)
     {
         $legalityResult = ServiceDispatcher::dispatch(ServiceDispatcher::TASK_SERVICE, new CheckOrderLegality($order));
+
         if ($legalityResult->hasErrors()) {
             Event::dispatch(new IllegallyRiskHappen($legalityResult->getError()));
         }

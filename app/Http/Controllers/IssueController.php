@@ -32,9 +32,11 @@ class IssueController
     public function cancelIssue($issueId)
     {
         $result = ServiceDispatcher::dispatch(ServiceDispatcher::TASK_SERVICE, new CancelIssue(Issue::find($issueId)));
+
         if ($result->hasErrors()) {
             return End::toSuccessJson($result->getErrors(), $result->getError());
         }
+
         return End::toSuccessJson();
     }
 }

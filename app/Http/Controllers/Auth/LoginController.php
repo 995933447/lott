@@ -15,6 +15,7 @@ class LoginController
     {
         // 验证请求参数
         $validateResult = ServiceDispatcher::dispatch(ServiceDispatcher::VALIDATOR_SERVICE, Login::class, $request);
+
         if ($validateResult->hasErrors()) {
             return End::toFailJson($validateResult->getErrors()->toArray(), $validateResult->getError());
         }
@@ -28,9 +29,11 @@ class LoginController
                 false
             )
         );
+
         if ($createTokenResult->hasErrors()) {
             return End::toFailJson($createTokenResult->getErrors()->toArray(), $createTokenResult->getError(), End::INTERNAL_ERROR);
         }
+
         return End::toSuccessJson(['token' => $createTokenResult->getData()]);
     }
 
