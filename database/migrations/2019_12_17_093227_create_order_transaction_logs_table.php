@@ -13,6 +13,7 @@ class CreateOrderTransactionLogsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('lottery_categories')) return;
         Schema::create('order_transaction_logs', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('user_id')->comment('用户id');
