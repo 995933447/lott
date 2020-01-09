@@ -36,7 +36,12 @@ class LotteryRepository
     public static function get(array $ids): array
     {
         $model = empty($ids)? new Lottery(): ($model = new Lottery())->whereIn($model->getPrimaryKey(), $ids);
-        return $model->with('betType')->where(Lottery::STATUS_FIELD, Lottery::VALID_STATUS)->orderBy(Lottery::SORT_FIELD, 'DESC')->get()->toArray();
+
+        return $model->with('betType')
+            ->where(Lottery::STATUS_FIELD, Lottery::VALID_STATUS)
+            ->orderBy(Lottery::SORT_FIELD, 'DESC')
+            ->get()
+            ->toArray();
     }
 
     public static function find(int $id): array
@@ -61,16 +66,21 @@ class LotteryRepository
     public static function getIssues(int $id, array $datetime = [], $status = null, int $limit = 0, int $offset = 0, $orderType = 'DESC'): array
     {
         $model = (new Issue())->where(Issue::LOTTERY_ID_FIELD, $id);
+
         if (!empty($datetime)) {
             $model = $model->where(Issue::ENDED_AT_FIELD, '>=', strtotime($datetime[0]))->where(Issue::ENDED_AT_FIELD, '<=', strtotime($datetime[1]));
         }
+
         $model = is_null($status)? $model: $model->where(Issue::STATUS_FIELD, $status);
+
         if ($limit > 0) {
             $model->limit($limit);
         }
+
         if ($offset > 0) {
             $model->offset($offset);
         }
+
         return $model->orderBy(Issue::STARTED_AT_FIELD, $orderType)->get()->toArray();
     }
 
