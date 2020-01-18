@@ -21,7 +21,7 @@ class CheckOrderLegality implements TaskServiceContract
     public function run(): ServeResult
     {
         if (!$this->betOrder->safe_identifier) {
-            return ServeResult::make(["博雅彩票订单号{$this->betOrder->order_no}缺少安全凭证"]);
+            return ServeResult::make(["订单号{$this->betOrder->order_no}缺少安全凭证"]);
         }
 
         switch ($version = $this->parseEncryptVersion()) {
@@ -43,7 +43,7 @@ class CheckOrderLegality implements TaskServiceContract
             Encryptor::unserializeToDecrypt($this->unserializedSafeIdentifier->payload): $this->unserializedSafeIdentifier->payload;
 
         if ($this->unserializedSafeIdentifier->version != $this->unserializedSafeIdentifier->payload->version) {
-            return ServeResult::make(['version' => "博雅彩票订单号{$this->betOrder->order_no}加密版本标记疑似被非法改动"]);
+            return ServeResult::make(['version' => "订单号{$this->betOrder->order_no}加密版本标记疑似被非法改动"]);
         }
 
         $reflectionSafeIdentifierPayload = new \ReflectionClass($this->unserializedSafeIdentifier->payload);
@@ -54,7 +54,7 @@ class CheckOrderLegality implements TaskServiceContract
                 continue;
 
             if ($this->betOrder->$propertyName != $needCheckProperty->getValue($this->unserializedSafeIdentifier->payload)) {
-                return ServeResult::make([$propertyName => "博雅彩票订单号{$this->betOrder->order_no} {$propertyName} 字段疑似被非法改动"]);
+                return ServeResult::make([$propertyName => "订单号{$this->betOrder->order_no} {$propertyName} 字段疑似被非法改动"]);
             }
         }
 
