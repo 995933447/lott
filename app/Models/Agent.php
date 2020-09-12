@@ -18,6 +18,4 @@ class Agent extends BySiteConnectionModel implements AuthenticatableContract, Au
     const PASSWORD_FIELD = 'password';
 
     const VALID_STATUS = 1;
-
-    protected $table = 'agent';
 }

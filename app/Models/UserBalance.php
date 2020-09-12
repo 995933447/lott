@@ -16,8 +16,6 @@ class UserBalance extends ByBalanceConnectionModel
 
     const VALID_STATUS = 1;
 
-    protected $table = 'balance_user';
-
     public function getBalanceAttribute($value)
     {
         return Money::normalize($value);

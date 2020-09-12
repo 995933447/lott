@@ -26,8 +26,6 @@ class User extends BySiteConnectionModel implements AuthenticatableContract, Aut
 
     const VALID_STATUS = 1;
 
-    protected $table = 'user';
-
     protected $hidden = [
         self::PASSWORD_FIELD,
         self::PAY_PASSWORD_FIELD,
