@@ -28,7 +28,7 @@ class LotteryTableSeeder extends Seeder
             [
                 'name' => '快三',
                 'status' => Lottery::VALID_STATUS,
-                'code' => Lottery::GUANGXIKUAILE10_TYPE_CODE,
+                'code' => Lottery::GUANGXIKUAI3_TYPE_CODE,
                 'lottery_category_id' => 2,
                 'limit_time' => 20,
                 'issue_num_day' => 40,

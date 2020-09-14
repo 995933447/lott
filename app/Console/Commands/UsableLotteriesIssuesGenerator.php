@@ -28,6 +28,7 @@ class UsableLotteriesIssuesGenerator extends ExtendCommand
     public function handle()
     {
         $lotteries = $this->lottery->where(Lottery::STATUS_FIELD, Lottery::VALID_STATUS)->get();
+
         foreach ($lotteries as $lottery) {
             Queue::push(new IssueGenerator($lottery), '', JobQueuesEnum::ISSUE_SETTER);
         }
