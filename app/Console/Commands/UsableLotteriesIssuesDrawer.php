@@ -14,7 +14,7 @@ class UsableLotteriesIssuesDrawer extends ExtendCommand
 
     const OPTIONS = '{--datetime}';
 
-    protected $description = '获取可用彩票并更新相关奖期信息,需启用队列命令配合工作';
+    protected $description = '开奖,需启用队列命令配合工作';
 
     protected $lottery;
 

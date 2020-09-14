@@ -26,7 +26,7 @@ class AlterPlayTypesTable extends Migration
             $table->integer('odd_type_id')->comment('投注类型ID');
 
             $table->dropColumn('play_type_code');
-            $table->integer('odd_type_code')->comment('投注类型代码');
+            $table->string('odd_type_code')->comment('投注类型代码');
         });
     }
 

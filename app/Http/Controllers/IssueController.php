@@ -23,7 +23,7 @@ class IssueController
         );
 
         if ($result->hasErrors()) {
-            return End::toFailJson($result->getErrors(), $result->getError());
+            return End::toFailJson($result->getErrors()->toArray(), $result->getError());
         }
 
         return End::toSuccessJson();
@@ -34,7 +34,7 @@ class IssueController
         $result = ServiceDispatcher::dispatch(ServiceDispatcher::TASK_SERVICE, new CancelIssue(Issue::find($issueId)));
 
         if ($result->hasErrors()) {
-            return End::toFailJson($result->getErrors(), $result->getError());
+            return End::toFailJson($result->getErrors()->toArray(), $result->getError());
         }
 
         return End::toSuccessJson();
