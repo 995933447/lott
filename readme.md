@@ -1,3 +1,5 @@
+# 仅供学习使用 请勿用于商业用途 后果自负！
+
 # Lumen PHP Framework
 
 [![Build Status](https://travis-ci.org/laravel/lumen-framework.svg)](https://travis-ci.org/laravel/lumen-framework)
